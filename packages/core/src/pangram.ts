@@ -7,25 +7,35 @@ const POLL_TIMEOUT_MS = 90_000;
 const SEPARATOR = "\n\n";
 
 type Window = { start: number; end: number; score: number };
-type Detection = { text: string; human: number; ai: number; assisted: number; windows: Window[]; demo: boolean };
+type Detection = { human: number; ai: number; assisted: number; windows: Window[] };
 
 type PangramResult = {
   stage: string;
   headline?: string;
-  text?: string;
   fraction_human?: number;
   fraction_ai?: number;
   fraction_ai_assisted?: number;
   windows?: { start_index: number; end_index: number; ai_assistance_score: number }[];
 };
 
+const MAX_PARALLEL = 3;
+const RATE_LIMIT_RETRIES = 5;
+
+async function createTask(text: string, headers: Record<string, string>): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(`${BASE_URL}/task`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ text, model: process.env.PANGRAM_MODEL ?? "pangram-4", public_dashboard_link: false }),
+    });
+    if (res.status !== 429 || attempt >= RATE_LIMIT_RETRIES) return res;
+    await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+  }
+}
+
 async function pangram(text: string, key: string): Promise<Detection> {
   const headers = { "Content-Type": "application/json", "x-api-key": key };
-  const created = await fetch(`${BASE_URL}/task`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ text, model: process.env.PANGRAM_MODEL ?? "pangram-4", public_dashboard_link: false }),
-  });
+  const created = await createTask(text, headers);
   if (!created.ok) throw new Error(`Pangram rejected the request (${created.status}): ${await created.text()}`);
   const { task_id } = (await created.json()) as { task_id: string };
 
@@ -38,12 +48,10 @@ async function pangram(text: string, key: string): Promise<Detection> {
     if (result.stage === "STAGE_FAILED") throw new Error(`Pangram could not score this post: ${result.headline ?? "unknown error"}`);
     if (result.stage !== "STAGE_SUCCESS") continue;
     return {
-      text: result.text ?? text,
       human: result.fraction_human ?? 0,
       ai: result.fraction_ai ?? 0,
       assisted: result.fraction_ai_assisted ?? 0,
       windows: (result.windows ?? []).map((w) => ({ start: w.start_index, end: w.end_index, score: w.ai_assistance_score })),
-      demo: false,
     };
   }
   throw new Error("Pangram did not finish scoring within 90 seconds.");
@@ -72,60 +80,56 @@ const GENERIC_PHRASES = [
   "journey",
 ];
 
-function demoDetect(paragraphs: Paragraph[]): Detection {
-  const text = paragraphs.map((p) => p.text).join(SEPARATOR);
-  const windows: Window[] = [];
-  let offset = 0;
-  let aiChars = 0;
-  for (const p of paragraphs) {
-    const lower = p.text.toLowerCase();
-    const hits = GENERIC_PHRASES.filter((phrase) => lower.includes(phrase)).length;
-    const specific = /\d/.test(p.text) || /\b(I|we|our)\b/.test(p.text);
-    const score = hits >= 2 ? 0.94 : hits === 1 ? (specific ? 0.42 : 0.86) : specific ? 0.06 : 0.31;
-    windows.push({ start: offset, end: offset + p.text.length, score });
-    if (score >= 0.5) aiChars += p.text.length;
-    offset += p.text.length + SEPARATOR.length;
-  }
-  const total = Math.max(1, paragraphs.reduce((n, p) => n + p.text.length, 0));
-  return { text, human: 1 - aiChars / total, ai: aiChars / total, assisted: 0, windows, demo: true };
+function demoScore(text: string): number {
+  const lower = text.toLowerCase();
+  const hits = GENERIC_PHRASES.filter((phrase) => lower.includes(phrase)).length;
+  const specific = /\d/.test(text) || /\b(I|we|our)\b/.test(text);
+  return hits >= 2 ? 0.94 : hits === 1 ? (specific ? 0.42 : 0.86) : specific ? 0.06 : 0.31;
 }
 
-function locateParagraphs(paragraphs: Paragraph[], scored: string): { start: number; end: number }[] {
-  const original = paragraphs.map((p) => p.text).join(SEPARATOR);
-  const ratio = scored.length / Math.max(1, original.length);
-  let cursor = 0;
-  let originalOffset = 0;
-  return paragraphs.map((p) => {
-    const needle = p.text.trim().slice(0, 48);
-    const found = needle ? scored.indexOf(needle, cursor) : -1;
-    const start = found >= 0 ? found : Math.round(originalOffset * ratio);
-    const end = start + Math.round(p.text.length * (found >= 0 ? 1 : ratio));
-    cursor = Math.max(cursor, end);
-    originalOffset += p.text.length + SEPARATOR.length;
-    return { start, end };
-  });
-}
-
-function paragraphScore(range: { start: number; end: number }, windows: Window[]): number | null {
+function averageScore(detection: Detection): number | null {
   let weighted = 0;
   let covered = 0;
-  for (const w of windows) {
-    const overlap = Math.min(range.end, w.end) - Math.max(range.start, w.start);
-    if (overlap <= 0) continue;
-    weighted += w.score * overlap;
-    covered += overlap;
+  for (const w of detection.windows) {
+    const length = Math.max(0, w.end - w.start);
+    weighted += w.score * length;
+    covered += length;
   }
   return covered > 0 ? weighted / covered : null;
+}
+
+async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const index = next++;
+      results[index] = await fn(items[index]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+async function detectWithPangram(paragraphs: Paragraph[], key: string) {
+  const texts = [paragraphs.map((p) => p.text).join(SEPARATOR), ...paragraphs.map((p) => p.text)];
+  const [whole, ...parts] = await mapLimit(texts, MAX_PARALLEL, (text) => pangram(text, key));
+  return { totals: { human: whole.human, ai: whole.ai, assisted: whole.assisted, demo: false }, scores: parts.map(averageScore) };
+}
+
+function detectDemo(paragraphs: Paragraph[]) {
+  const scores = paragraphs.map((p) => demoScore(p.text));
+  const total = Math.max(1, paragraphs.reduce((n, p) => n + p.text.length, 0));
+  const ai = paragraphs.reduce((n, p, i) => n + (scores[i] >= 0.5 ? p.text.length : 0), 0) / total;
+  return { totals: { human: 1 - ai, ai, assisted: 0, demo: true }, scores };
 }
 
 export async function scorePost(postId: number): Promise<Post> {
   const post = requirePost(postId);
   if (post.paragraphs.length === 0) throw new Error("This post has no paragraphs to score yet.");
   const key = process.env.PANGRAM_API_KEY;
-  const detection = key ? await pangram(post.paragraphs.map((p) => p.text).join(SEPARATOR), key) : demoDetect(post.paragraphs);
-  const ranges = locateParagraphs(post.paragraphs, detection.text);
-  const perParagraph = new Map(post.paragraphs.map((p, i) => [p.id, paragraphScore(ranges[i], detection.windows)]));
-  saveScores(postId, detection, perParagraph);
+  const { totals, scores } = key ? await detectWithPangram(post.paragraphs, key) : detectDemo(post.paragraphs);
+  saveScores(postId, totals, new Map(post.paragraphs.map((p, i) => [p.id, scores[i]])));
   return requirePost(postId);
 }
 
