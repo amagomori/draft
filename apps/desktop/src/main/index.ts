@@ -20,11 +20,13 @@ import {
   type ExportFormat,
 } from "@draft/core";
 
-const repoRoot = app.isPackaged ? process.env.DRAFT_REPO : resolve(app.getAppPath(), "..", "..");
-loadEnv(repoRoot ? [repoRoot] : []);
+declare const __DRAFT_REPO__: string;
+
+const repoRoot = process.env.DRAFT_REPO ?? (app.isPackaged ? __DRAFT_REPO__ : resolve(app.getAppPath(), "..", ".."));
+loadEnv([repoRoot]);
 
 function connectCommand(postId: number): string {
-  const entry = repoRoot ? join(repoRoot, "mcp", "src", "index.ts") : "/path/to/draft/mcp/src/index.ts";
+  const entry = join(repoRoot, "mcp", "src", "index.ts");
   return `node "${entry}" --post ${postId}`;
 }
 
