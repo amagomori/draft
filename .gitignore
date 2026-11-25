@@ -18,5 +18,6 @@ Thumbs.db
 # Build / deps
 node_modules/
 dist/
+out/
 build/
 target/

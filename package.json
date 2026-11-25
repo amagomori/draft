@@ -1,0 +1,22 @@
+{
+  "name": "draft",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "mcp"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/desktop",
+    "start": "npm run start -w apps/desktop",
+    "build": "npm run build -w apps/desktop",
+    "package": "npm run package -w apps/desktop",
+    "mcp": "node mcp/src/index.ts",
+    "seed": "node packages/core/src/seed.ts",
+    "typecheck": "tsc -p packages/core && tsc -p mcp && tsc -p apps/desktop"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

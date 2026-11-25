@@ -1,0 +1,16 @@
+appId: com.amagomori.draft
+productName: Draft
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - out/**
+  - package.json
+mac:
+  icon: resources/icon.icns
+  category: public.app-category.productivity
+  target:
+    - dmg
+    - zip
+dmg:
+  title: Draft

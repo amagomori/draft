@@ -1,0 +1,18 @@
+{
+  "name": "@draft/core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts"
+  },
+  "dependencies": {
+    "docx": "^9.16.0",
+    "pdfkit": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.7",
+    "@types/pdfkit": "^0.17.7"
+  }
+}

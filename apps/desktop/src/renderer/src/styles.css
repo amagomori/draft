@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+@theme {
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --color-cream: #efefe4;
+  --color-surface: #fcfcf9;
+  --color-sunk: #f5f5f2;
+  --color-stone: #e5e5da;
+  --color-track: #eaeae7;
+  --color-line: #d7d7d6;
+  --color-ink: #181818;
+  --color-ink-soft: #222222;
+  --color-muted: #424242;
+  --color-subtle: #666666;
+  --color-faint: #909090;
+  --color-flag: #e6eefb;
+  --color-flag-strong: #cfdff5;
+  --color-blue: #4c8eef;
+  --color-blue-ink: #2d6fcd;
+  --color-human: #1e7a4c;
+  --color-human-soft: #e5f1e9;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+textarea,
+input {
+  user-select: text;
+}
+
+.drag {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.card {
+  border-radius: 20px;
+  background: var(--color-surface);
+  box-shadow:
+    0 1px 2px rgb(24 24 24 / 0.04),
+    0 8px 24px rgb(24 24 24 / 0.05);
+}
