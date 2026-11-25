@@ -24,7 +24,7 @@ const repoRoot = app.isPackaged ? process.env.DRAFT_REPO : resolve(app.getAppPat
 loadEnv(repoRoot ? [repoRoot] : []);
 
 function connectCommand(postId: number): string {
-  const entry = repoRoot ? join(repoRoot, "mcp", "src", "index.ts") : "/path/to/draft-two/mcp/src/index.ts";
+  const entry = repoRoot ? join(repoRoot, "mcp", "src", "index.ts") : "/path/to/draft/mcp/src/index.ts";
   return `node "${entry}" --post ${postId}`;
 }
 

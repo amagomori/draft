@@ -11,8 +11,8 @@ Draft is a desktop app for writing blog posts with an AI agent and revising the 
 Requires macOS and Node.js 22.18 or newer.
 
 ```bash
-git clone https://github.com/amagomori/draft-two.git
-cd draft-two
+git clone https://github.com/amagomori/draft.git
+cd draft
 npm install
 cp .env.example .env   # add your PANGRAM_API_KEY
 npm start
@@ -27,10 +27,10 @@ To build a standalone app, run `npm run package`. The `.dmg` and `Draft.app` lan
 Each post has its own MCP connection. Open a post, click the **Capy** chip in the top bar and copy the command. It looks like this:
 
 ```bash
-node /path/to/draft-two/mcp/src/index.ts --post 1
+node /path/to/draft/mcp/src/index.ts --post 1
 ```
 
-**Capy:** in Settings → MCP & plugins, add an MCP server with transport **STDIO**, key `draft`, command `node` and arguments `/path/to/draft-two/mcp/src/index.ts`, `--post`, `1`. Run the thread on the Mac where Draft is installed, then ask Capy to draft the post and work through the flagged paragraphs.
+**Capy:** in Settings → MCP & plugins, add an MCP server with transport **STDIO**, key `draft`, command `node` and arguments `/path/to/draft/mcp/src/index.ts`, `--post`, `1`. Run the thread on the Mac where Draft is installed, then ask Capy to draft the post and work through the flagged paragraphs.
 
 **Claude Code and other clients:**
 
@@ -39,7 +39,7 @@ node /path/to/draft-two/mcp/src/index.ts --post 1
   "mcpServers": {
     "draft": {
       "command": "node",
-      "args": ["/path/to/draft-two/mcp/src/index.ts", "--post", "1"]
+      "args": ["/path/to/draft/mcp/src/index.ts", "--post", "1"]
     }
   }
 }
