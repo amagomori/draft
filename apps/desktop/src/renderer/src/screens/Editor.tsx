@@ -63,7 +63,7 @@ function ScoreCard({ post, checking, onCheck, pangram }: { post: Post; checking:
             {stale
               ? "The post changed since the last check."
               : flagged === 0
-                ? "Every paragraph reads as human."
+                ? "No paragraphs flagged."
                 : `${flagged} of ${post.paragraphs.length} paragraphs still read as AI-written.`}
           </span>
         </>
@@ -149,7 +149,7 @@ function QuestionCard({ postId, paragraph, index, active, onSelect }: { postId: 
           </div>
         </>
       ) : (
-        <span className="text-[15px] leading-snug text-subtle">Capy hasn't asked about this paragraph yet. Connect Capy and ask it to humanize the post.</span>
+        <span className="text-[15px] leading-snug text-subtle">Capy hasn't asked about this paragraph yet. Connect Capy and ask it to work through the flagged paragraphs.</span>
       )}
     </div>
   );

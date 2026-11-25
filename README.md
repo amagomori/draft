@@ -1,8 +1,8 @@
 # Draft
 
-**AI writes the first draft. You make it yours.**
+Iterate on blog posts through Pangram and Capy.
 
-Draft is a desktop app for writing blog posts with an AI agent without ending up with generic AI prose. Your agent writes the first draft from your notes over MCP, [Pangram](https://www.pangram.com) scores every paragraph, and the ones that read as AI-written get a question only you can answer: an example, a number, an opinion. Your answers get worked back in until the post sounds like you. Export to Markdown, Word or PDF when it's done.
+Draft is a desktop app for writing blog posts with an AI agent and revising the paragraphs Pangram flags as AI-written. Your agent writes the first draft from your notes over MCP, [Pangram](https://www.pangram.com) scores every paragraph, and the ones that read as AI-written get a question only you can answer: an example, a number, an opinion. Your answers get worked back in until the post sounds like you. Export to Markdown, Word or PDF when it's done.
 
 ![Draft home screen](docs/home.png)
 
@@ -30,7 +30,7 @@ Each post has its own MCP connection. Open a post, click the **Capy** chip in th
 node /path/to/draft-two/mcp/src/index.ts --post 1
 ```
 
-**Capy:** in Settings → MCP & plugins, add an MCP server with transport **STDIO**, key `draft`, command `node` and arguments `/path/to/draft-two/mcp/src/index.ts`, `--post`, `1`. Run the thread on the Mac where Draft is installed, then ask Capy to write and humanize the post.
+**Capy:** in Settings → MCP & plugins, add an MCP server with transport **STDIO**, key `draft`, command `node` and arguments `/path/to/draft-two/mcp/src/index.ts`, `--post`, `1`. Run the thread on the Mac where Draft is installed, then ask Capy to draft the post and work through the flagged paragraphs.
 
 **Claude Code and other clients:**
 

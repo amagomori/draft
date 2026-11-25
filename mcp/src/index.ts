@@ -63,7 +63,7 @@ const server = new McpServer(
   { name: "draft", version: "0.1.0" },
   {
     instructions: `You are editing one Draft blog post: "${title}" (id ${postId}).
-Draft keeps the post human. Workflow:
+Your job is to draft the post and revise flagged paragraphs using the author's answers. Workflow:
 1. get_post to read the author's notes and the current paragraphs.
 2. If there are no paragraphs, write_draft from the notes.
 3. score_post runs Pangram and flags paragraphs that read as AI-written.

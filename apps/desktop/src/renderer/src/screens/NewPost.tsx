@@ -19,7 +19,7 @@ export function NewPost({ navigate }: { navigate: (route: Route) => void }) {
         <div className="flex w-[760px] flex-col gap-6">
           <div className="flex flex-col gap-2">
             <h1 className="text-[34px] leading-tight font-bold tracking-[-0.03em] text-ink">Start with your notes</h1>
-            <p className="text-base text-subtle">An outline, bullet points, half-finished thoughts. Capy turns them into a first draft.</p>
+            <p className="text-base text-subtle">Paste your notes or an outline. Capy writes the first draft from them.</p>
           </div>
           <div className="card flex flex-col gap-4 p-5">
             <input

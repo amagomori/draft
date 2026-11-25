@@ -50,16 +50,13 @@ export function Home({ navigate }: { navigate: (route: Route) => void }) {
         <div className="flex w-[1104px] flex-col gap-9">
           <div className="flex flex-col gap-3">
             <h1 className="text-[44px] leading-[1.08] font-bold tracking-[-0.035em] text-ink">
-              AI writes the first draft.
-              <br />
-              You make it yours.
+              Your posts
             </h1>
             <p className="text-[17px] leading-normal text-subtle">
-              Drop in your notes. Pangram flags what sounds generic, and you fill in what only you know.
+              Capy drafts from your notes. Pangram flags paragraphs that read as AI. You answer a question for each one.
             </p>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] font-semibold text-ink">Your posts</span>
+          <div className="flex items-center justify-end">
             <button onClick={() => navigate({ name: "new" })} className="flex h-[38px] items-center gap-2 rounded-full bg-ink px-4">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FCFCF9" strokeWidth="2.5" strokeLinecap="round">
                 <path d="M12 5v14M5 12h14" />
@@ -70,7 +67,7 @@ export function Home({ navigate }: { navigate: (route: Route) => void }) {
           {posts && posts.length === 0 && (
             <div className="card flex flex-col items-start gap-3 p-8">
               <span className="text-lg font-semibold text-ink">No posts yet</span>
-              <span className="text-sm text-subtle">Start with your notes. Capy writes the first draft, you make it yours.</span>
+              <span className="text-sm text-subtle">Create one from your notes.</span>
             </div>
           )}
           <div className="grid grid-cols-3 gap-6">

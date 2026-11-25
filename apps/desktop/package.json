@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "productName": "Draft",
-  "description": "AI writes the first draft. You make it yours.",
+  "description": "Iterate on blog posts through Pangram and Capy.",
   "author": "amagomori",
   "main": "out/main/index.js",
   "scripts": {

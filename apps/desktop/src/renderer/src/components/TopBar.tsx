@@ -27,7 +27,7 @@ export type Step = "notes" | "draft" | "humanize" | "export";
 const STEPS: { id: Step; label: string }[] = [
   { id: "notes", label: "Notes" },
   { id: "draft", label: "Draft" },
-  { id: "humanize", label: "Humanize" },
+  { id: "humanize", label: "Revise" },
   { id: "export", label: "Export" },
 ];
 
